@@ -1,0 +1,93 @@
+ELR_DataElement,CSVColumnName,Irrelevant,Format,ListOfValues,IsRequired,RegEX,Pattern,ScratchPad,,,
+sendingFacility,,,,,,,,,,,
+sfIdentifier,,,,,,,,,,,
+sfIdentifierCodeSystem,,,,,,,,,,,
+sendingApplication,,,,,,,,,,,
+saIdentifier,,,,,,,,,,,
+saIdentifierCodeSystem,,,,,,,,,,,
+patientLastName,PATIENT LAST NAME,,,,YES,,,,,,PATIENT SUFFIX
+patientMiddleName,PATIENT MIDDLE NAME,,,,,,,,,,PATIENT RACE
+patientFirstName,PATIENT FIRST NAME,,,,YES,,,,,,PATIENT ENTHNICITY
+patientGender,PATIENT GENDER,,,,,,,,,,PATIENT EMAIL 
+patientId,PATIENT ID,,,,,,,,,,SPECIMEN SNOMED CODE
+patientDOB,PATIENT BIRTHDAY,,,,,,,,,,TEST LOINC CODE
+patientRace,,,,,,,,,,,RESULT SNOMED CODE
+patientEthnicity,,,,,,,,,,,ORDERING PROVIDER LAST NAME
+patientTelephoneNumber,PATIENT PHONE NO,,,,,,,,,,ORDERING PROVIDER FIRST NAME
+patientAddressLine1,PATIENT STREET ADDRESS,,,,,,,,,,ORDERING PROVIDER STREET ADDRESS
+patientAddressLine2,,,,,,,,,,,ORDERING PROVIDER CITY
+patientAddressCounty,PATIENT COUNTY,,,,,,,,,,ORDERING PROVIDER STATE
+patientAddressCity,PATIENT CITY,,,,,,,,,,ORDERING PROVIDER ZIP CODE
+patientAddressState,PATIENT STATE,,,,,,,,,,ORDERING PROVIDER PHONE NO
+patientAddressZip,PATIENT ZIP CODE,,,,,,,,,,PATIENT AGE UNITS AT TIME OF COLLECTION 
+placerOrder,ACCESSION NUMBER,,,,,,,,,,DEVICE IDENTIFIER INFO
+fillerOrder,,,,,,,,,,,
+resultedTest,TEST NAME,,,,,,,,,,
+resultedTest_LOINC,,,,,,^\d+-\d$,,,,,
+observation,RESULT DESCRIPTION OR VALUE,,,"DETECTED
+;NOT DETECTED
+;NotDetected
+;POSITIVE
+;NEGATIVE
+;INCONCLUSIVE",,,,,,,
+Notes,,,,,,,,,,,
+orderingFacility,ORDERING FACILITY NAME,,,,,,,,,,
+orderingFacility_Address,ORDERING FACILITY STREET ADDRESS,,,,,,,,,,
+orderingFacility_Address_Ln2,,,,,,,,,,,
+orderingFacility_City,ORDERING FACILITY CITY,,,,,,,,,,
+orderingFacility_State,ORDERING FACILITY STATE,,,,,,,,,,
+orderingFacility_Zip,ORDERING FACILITY ZIP CODE,,,,,,,,,,
+orderingFacility_CallBackNumber,ORDERING FACILITY PHONE NUMBER,,,,,,,,,,
+specimenType,SPECIMEN SOURCE,,,,,,,,,,
+specimenCollectionDate,SPECIMEN COLLECTION DATE,,,,,,,,,,
+specimenReceivedDate,,,,,,,,,,,
+labResultDate,TEST RESULT DATE,,,,,,,,,,
+providerFirstName,,,,,,,,,,,
+providerLastName,,,,,,,,,,,
+providerNPI,,,,,,,,,,,
+ProviderName,,,,,,,,,,,
+ProviderAddress,,,,,,,,,,,
+ProviderAddress_Ln2,,,,,,,,,,,
+Provider_City,,,,,,,,,,,
+Provider_State,,,,,,,,,,,
+Provider_Zip,,,,,,,,,,,
+Provider_CallBackNumber,,,,,,,,,,,
+performingFacility,TESTING LAB NAME,,,,,,,,,,
+performingFacilityCLIA,TESTING LAB CLIA,,,,,,,,,,
+performingFacilityAddress,TESTING LAB STREET ADDRESS,,,,,,,,,,
+performingFacilityAddress_Ln2,,,,,,,,,,,
+performingFacility_City,TESTING LAB CITY,,,,,,,,,,
+performingFacility_State,TESTING LAB STATE,,,,,,,,,,
+performingFacility_Zip,TESTING LAB ZIP CODE,,,,,,,,,,
+performingFacility_CallBackNumber,TESTING LAB PHONE NO,,,,,,,,,,
+SYMPTOMATIC,,,,,,,,,,,
+onsetDate,,,,,,,,,,,
+Pregnant,,,,,,,,,,,
+Diabetes,,,,,,,,,,,
+HeartCondition,,,,,,,,,,,
+Immunocompromised,,,,,,,,,,,
+KidneyDisease,,,,,,,,,,,
+LiverDisease,,,,,,,,,,,
+LungDisease,,,,,,,,,,,
+Obese,,,,,,,,,,,
+DESCRIBE_SYMPTOMS,,,,,,,,,,,
+HCW,,,,,,,,,,,
+FEVER,,,,,,,,,,,
+COUGH,,,,,,,,,,,
+SORE_THROAT,,,,,,,,,,,
+SORE_THROAT_FLU,,,,,,,,,,,
+RHINORRHEA,,,,,,,,,,,
+SHORT_OB,,,,,,,,,,,
+HEADACHE,,,,,,,,,,,
+SWEATS,,,,,,,,,,,
+GASTROINTESTINAL,,,,,,,,,,,
+WEAKNESS,,,,,,,,,,,
+isThisFirstTest,PATIENT FIRST COVID TEST,,,,,,,,,,
+isAHealthcareWorker,PATIENT EMPLOYED IN HEALTHCARE,,,,,,,,,,
+isSymptomatic,PATIENT SYMPTOMATIC AS DEFINED BY CDC,,,,,,,,,,
+symptomOnsetDate,PATIENT SYMPTOM ONSET DATE,,,,,,,,,,
+isHospitalized,PATIENT HOSPITALIZED,,,,,,,,,,
+inICU,PATIENT IN ICU,,,,,,,,,,
+isResidentOfCongregateCareSetting,PATIENT RESIDENT IN A CONGREGATE CARE SETTING,,,,,,,,,,
+isPregnant,PATIENT PREGNANT,,,,,,,,,,
+patientAge,PATIENT AGE AT TIME OF COLLECTION,,,,,,,,,,
