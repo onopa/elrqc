@@ -9,7 +9,6 @@ def import_csv_df():
     for labfile in glob.glob('./data/processed/csv_labs_concat/*.csv'):
         print(labfile)
         df = pd.read_csv(labfile, dtype='str')
-        df.drop('File Creation Date', axis=1)
         df_list.append(df)
 
     output = pd.concat(df_list)
@@ -25,7 +24,7 @@ def import_csv_dict():
         print('loading ' + labfile)
         df = pd.read_csv(labfile, dtype='str')
         df['Submission Date'] = pd.to_datetime(df['File Creation Date'], format='%Y-%m-%d')
-        df.drop('File Creation Date', axis=1)
+        df.drop('File Creation Date', axis=1, inplace=True)
         lab_name = df['Lab Name'][0]
         df_dict[lab_name] = df
 
@@ -122,23 +121,23 @@ def import_ecr(output_type):
 def import_missingness(output_type):
     if output_type not in ('df', 'dict'):
         raise ValueError('neet to select df or dict return type')
-    missingness_folder = glob.glob('./data/processed/csv_missingness/*.csv') + glob.glob('./data/processed/hhie_missingness/*.csv')
-    df_list = []
-    for labfile in missingness_folder:
-        miss_df = pd.read_csv(labfile)
-        miss_df['Submission Date'] = pd.to_datetime(miss_df['Submission Date'])
-        df_list.append(miss_df)
+    missingness_files = glob.glob('./data/processed/csv_missingness/*.csv') + glob.glob('./data/processed/hhie_missingness/*.csv')
+    file_df_list = []
+    lab_name_list = []
+    for missfile in missingness_files:
+        lab_df = pd.read_csv(missfile)
+        lab_df['Submission Date'] = pd.to_datetime(lab_df['Submission Date'])
+        lab_name = lab_df['Lab Name'][0]
+
+        file_df_list.append(lab_df)
+        lab_name_list.append(lab_name)
 
     if output_type == 'df':
-        output = pd.concat(df_list)
-        return output
+        return pd.concat(file_df_list)
 
     elif output_type == 'dict':
-        lab_names = []
-        for lab_df in df_list:
-            lab_names.append(lab_df['Lab Name'][0])
-        output_dict = dict(zip(lab_names, df_list))
-        return output_dict
+        return dict(zip(lab_name_list, file_df_list))
+
     else:
         sys.exit('something went wrong on missingness import')
 
@@ -164,6 +163,8 @@ def import_misformatting(output_type):
 
 
 def import_misformat_values(output_type):
+    if output_type not in ('df', 'dict'):
+        raise ValueError('need to select df or dict return type')
     misformat_list = []
     for misformat_file in glob.glob('./data/processed/csv_misformat_values/*.csv'):
         mfdf_csv = pd.read_csv(misformat_file, dtype='str')
@@ -184,4 +185,4 @@ def import_misformat_values(output_type):
         output_dict = dict(zip(lab_names, misformat_list))
         return output_dict
     else:
-        sys.exit('problem with misformat values import, please select either \'df\' or \'dict\'')
+        sys.exit('problem with misformat values import')

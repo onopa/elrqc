@@ -1,14 +1,13 @@
-import pandas as pd
-from datetime import datetime, timedelta
-import datetime as dt
-import glob
-import plotly.graph_objects as go
-import numpy as np
-from data_loader import *
+from datetime import datetime
 
+import numpy as np
+import plotly.graph_objects as go
+
+from data_loader import *
 
 df_hhie = import_hhie_df()
 df_csv = import_csv_df()
+
 
 def convert_resultdate(datestring):
     try:
@@ -19,7 +18,7 @@ def convert_resultdate(datestring):
 
 
 print('converting dates')
-#df_csv['labResultDate'] = df_csv['labResultDate'].apply(convert_resultdate)
+# df_csv['labResultDate'] = df_csv['labResultDate'].apply(convert_resultdate)
 df_hhie['Submission Date'] = pd.to_datetime(df_hhie['Submission Date'], errors='coerce')
 df_hhie = df_hhie.loc[df_hhie['Submission Date'] > '2023-01-01 ']
 
@@ -34,7 +33,6 @@ df.reset_index(drop=True, inplace=True)
 lag_timedelta = df['Submission Date'].dt.date - df['labResultDate'].dt.date
 df['Reporting Lag'] = lag_timedelta.dt.days
 
-
 df = df[['Submission Date', 'Lab Name', 'Reporting Lag']]
 df['Reporting Lag Factor'] = np.nan
 df.loc[df['Reporting Lag'] <= 1, 'Reporting Lag Factor'] = '1 Day or Less'
@@ -42,7 +40,7 @@ df.loc[(df['Reporting Lag'] > 1) & (df['Reporting Lag'] <= 10), 'Reporting Lag F
 df.loc[df['Reporting Lag'] > 10, 'Reporting Lag Factor'] = '10+ Days'
 
 # jitter for swarm plot?
-#df['Reporting Lag Jittered'] = df['Reporting Lag'] + np.random.uniform(-0.1,0.1, len(lag_timedelta))
+# df['Reporting Lag Jittered'] = df['Reporting Lag'] + np.random.uniform(-0.1,0.1, len(lag_timedelta))
 #
 # lag = df[['Lab Name', 'Submission Date', 'labResultDate']].copy()
 # lag.reset_index(drop=True, inplace=True)
@@ -62,9 +60,10 @@ df.loc[df['Reporting Lag'] > 10, 'Reporting Lag Factor'] = '10+ Days'
 # df['Reporting Lag'] = deltaDays
 print('lags computed')
 
+
 # try to figure out where to use this sort of thing to set color for all plots
 
-#df['markercolor'] = df['Reporting Lag'].apply(setcolor)
+# df['markercolor'] = df['Reporting Lag'].apply(setcolor)
 
 
 # define functions for building x and y variables for each different plot, called when building dropdown
@@ -72,9 +71,11 @@ def updateTimePlotX(lab):
     use = df.loc[df['Lab Name'] == lab]
     return use['Submission Date']
 
+
 def updateTimePlotY(lab, var):
     use = df.loc[df['Lab Name'] == lab]
     return use[var]
+
 
 # how to use this
 def updateColor(lab):
@@ -86,11 +87,10 @@ availableLabs = df['Lab Name'].unique().tolist()
 
 dropdown_labs = []
 
-
 for i, lab_choice in enumerate(availableLabs):
     print('building dropdown ' + str(i))
-    vis = [False] * 3*len(availableLabs)
-    for v in [3*i, 3*i+1, 3*i+2]:
+    vis = [False] * 3 * len(availableLabs)
+    for v in [3 * i, 3 * i + 1, 3 * i + 2]:
         vis[v] = True
     dropdown_labs.append(dict(
         args=[{'visible': vis}],
@@ -148,11 +148,10 @@ for i, labname in enumerate(availableLabs):
                     name='10+ Days',
                     offsetgroup=0)
 
-
     fig.add_trace(trace1)
     fig.add_trace(trace2)
     fig.add_trace(trace3)
-    #usedf['Submission Date'] = usedf['Submission Date'].dt.date
+    # usedf['Submission Date'] = usedf['Submission Date'].dt.date
 
     # trace = go.Box(y=usedf['Reporting Lag Jittered'], x=usedf['Submission Date'],
     #                #mode='markers',
@@ -198,7 +197,7 @@ fig.update_layout(
     margin=dict(t=140)
 )
 
-#fig.update_xaxes(range=['2020-03-01', datetime.datetime.today()])
+# fig.update_xaxes(range=['2020-03-01', datetime.datetime.today()])
 # Add the buttons and dropdown
 # Note: I've seen odd behavior with adding the dropdown first and then the buttons. (e.g., the dropdown turns into many buttons)
 fig.update_layout(
@@ -217,7 +216,7 @@ fig.update_layout(
 )
 
 fig.show()
-#fig.write_html("C:/Users/alexander.onopa/workspace/lrp/plotly_reporting_lag.html")
+# fig.write_html("C:/Users/alexander.onopa/workspace/lrp/plotly_reporting_lag.html")
 
 #
 # import plotly.graph_objects as go

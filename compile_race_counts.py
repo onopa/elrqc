@@ -1,23 +1,18 @@
-import multiprocessing
-import numpy as np
-from lrp_format_check_functions import *
-import pandas as pd
-import glob
-import datetime
 from data_loader import *
+from lrp_format_check_functions import *
 
 agg_dict = {
-        'Total_Count': lambda x: len(x),
-        'American Indian or Alaska Native': lambda x: count_race(x, 'I'),
-        'Asian': lambda x: count_race(x, 'A'),
-        'Black or African American': lambda x: count_race(x, 'B'),
-        'Native Hawaiian or Other Pacific Islander': lambda x: count_race(x, 'P'),
-        'White': lambda x: count_race(x, 'W'),
-        'Other': lambda x: count_race(x, 'O'),
-        'Unknown or Refused to Answer': lambda x: count_race(x, 'U'),
-        'Misformatted': lambda x: count_race(x, 'misformat'),
-        'Missing': lambda x: count_race(x, 'missing')
-    }
+    'Total_Count': lambda x: len(x),
+    'American Indian or Alaska Native': lambda x: count_race(x, 'I'),
+    'Asian': lambda x: count_race(x, 'A'),
+    'Black or African American': lambda x: count_race(x, 'B'),
+    'Native Hawaiian or Other Pacific Islander': lambda x: count_race(x, 'P'),
+    'White': lambda x: count_race(x, 'W'),
+    'Other': lambda x: count_race(x, 'O'),
+    'Unknown or Refused to Answer': lambda x: count_race(x, 'U'),
+    'Misformatted': lambda x: count_race(x, 'misformat'),
+    'Missing': lambda x: count_race(x, 'missing')
+}
 
 
 def compile_csv_race_data():
@@ -50,7 +45,7 @@ def compile_csv_race_data():
         output = pd.DataFrame()
         for key, val in agg_dict.items():
             agg_col = grouped_race.agg(var=val)
-            output = pd.concat([output, agg_col], axis = 1)
+            output = pd.concat([output, agg_col], axis=1)
 
         output.columns = [var for var in agg_dict.keys()]
 
@@ -98,9 +93,9 @@ def prep_hhie():
     # df_hhie['Submission Date'] = pd.to_datetime(df_hhie['Submission Date'])
     # df_hhie['Submission Date'] = df_hhie['Submission Date'].apply(lambda x: x.date())
 
-    #all_cols = df.columns
-    #cols_to_drop = [col for col in all_cols if col not in list(renaming_dict.values())]
-    #df2 = df.drop(cols_to_drop, axis=1)
+    # all_cols = df.columns
+    # cols_to_drop = [col for col in all_cols if col not in list(renaming_dict.values())]
+    # df2 = df.drop(cols_to_drop, axis=1)
     df_hhie = import_hhie_df()
     df_hhie = df_hhie[['Submission Date', 'patientRace', 'Lab Name']]
 
@@ -136,8 +131,8 @@ def process_hhie(labitem):
 
 def compile_hhie_race_parallel():
     labdfs = prep_hhie()
-    #print('starting multiprocess')
-    #with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    # print('starting multiprocess')
+    # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
     #    data = pool.map(process_hhie, labdfs)
     for labitem in labdfs:
         process_hhie(labitem)
@@ -163,8 +158,9 @@ def compile_ecr_race_data():
     ecr_lab_list = pd.unique(ecr_df['Lab Name'])
     ecr_data_list = []
     for lab_name in ecr_lab_list:
+        print(lab_name)
         lab_df = ecr_df.loc[ecr_df['Lab Name'] == lab_name]
-        #ecr_data_list.append([lab, lab_df])
+        # ecr_data_list.append([lab, lab_df])
         ecr_grouped = lab_df.groupby('Submission Date')
         ecr_grouped_race = ecr_grouped['patientRace']
         ecr_output = pd.DataFrame()

@@ -57,7 +57,8 @@ check_function_dict = {'patientLastName': lambda x: check_col(x, check_charlist,
                        'isPregnant': lambda x: check_col(x, check_ynuunk),  # Patient Pregnant TODO: as above, optional + desc/code
                        'isResidentOfCongregateCareSetting': lambda x: check_col(x, check_ynuunk),  # Patient Resident in a Congregate Care Setting, todo: as above, optional + desc/code
                        'patientAge': lambda x: check_col(x, check_numeric, 3),  # Patient Age at Time of Collection (Years) todo: ETN missing column, move to optional. also KMC mapper is missing this
-                       'Lab Name': lambda x: check_col(x, check_charlist, 5)
+                       'Lab Name': lambda x: check_col(x, check_charlist, 5),
+                       'ADDITIONAL_NOTES_1': lambda x: check_col(x, check_charlist, 75)
                        }
 
 
@@ -72,11 +73,14 @@ def prep_hhie_data_list():
     all_labs = pd.unique(df['Lab Name'])
 
     # check missignness
-    miss_grp = df.groupby(['Lab Name','Submission Date'])
-    miss_count = miss_grp.agg(lambda x: x.isnull().sum())
-    miss_total = miss_grp.size()
-    miss_count['Total Count'] = miss_total
-    miss_count.to_csv('./data/processed/hhie_missingness/all_miss.csv')
+    for lab in all_labs:
+        lab_df = df.loc[df['Lab Name'] == lab]
+        lab_grp = lab_df.groupby(['Submission Date'])
+        miss_count = lab_grp.agg(lambda x: x.isnull().sum())
+        miss_total = pd.DataFrame(lab_grp.size())
+        miss_count['Total Submission Count'] = miss_total
+        miss_count['Lab Name'] = lab
+        miss_count.to_csv('./data/processed/hhie_missingness/' + lab + '.csv')
 
     labdfs = []
     for lab in all_labs:

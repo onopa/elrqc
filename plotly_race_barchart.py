@@ -1,13 +1,12 @@
-import os
-import pandas as pd
-import glob
 import datetime
+import glob
+
+import pandas as pd
 # from lrp_format_check_functions import *
 import plotly
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pymmwr
-import glasbey
+from plotly.subplots import make_subplots
 
 # dictionary of variables and colors for plots
 colors = [plotly.colors.qualitative.Plotly[0],
@@ -37,8 +36,8 @@ color_dict = dict(zip(varnames, colors))
 df = pd.DataFrame()
 df_percentages = pd.DataFrame()
 
-files_to_load = glob.glob('./data/processed/csv_race_counts/*.csv') +\
-                glob.glob('./data/processed/hhie_race_counts/*.csv') +\
+files_to_load = glob.glob('./data/processed/csv_race_counts/*.csv') + \
+                glob.glob('./data/processed/hhie_race_counts/*.csv') + \
                 glob.glob('./data/processed/ecr_race_counts/*.csv')
 
 for lab_file in files_to_load:
@@ -75,10 +74,12 @@ for lab_file in files_to_load:
 melt_df = pd.melt(df, id_vars=['Week Ending', 'Lab Name'])
 melt_df_percentages = pd.melt(df_percentages, id_vars=['Week Ending', 'Lab Name'])
 
+
 # get lab data
 def update_data(data, lab_selection):
     use = data.loc[data['Lab Name'] == lab_selection]
     return use.copy()
+
 
 # get data for all other labs
 def update_data_others(data, lab_selection):
@@ -92,7 +93,6 @@ def update_misformat_table(lab_selection):
 
 availableLabs = df['Lab Name'].unique().tolist()
 
-
 ## Set up dropdown selector
 dropdown_labs = []
 
@@ -100,12 +100,12 @@ numVars = len(varnames)
 numLabs = len(availableLabs)
 # total number of traces in the chart is (2*numVars+2)*numLabs.
 # first 2 subplots each have (numvars) traces, third subplot always has just 2 traces. repeat for each lab
-vis_length = (2*numVars+2)*numLabs
+vis_length = (2 * numVars + 2) * numLabs
 # set visibility vector for swapping between each set with dropdown
 for i, lab in enumerate(availableLabs):
     vis = [False] * vis_length
     # starting at correct index, set adjacent visibilities to True to display correct batch of traces for each dropdown selection
-    bounds = [(2*numVars+2)*i + k for k in range(2*numVars+2)]
+    bounds = [(2 * numVars + 2) * i + k for k in range(2 * numVars + 2)]
     for v in bounds:
         vis[v] = True
     dropdown_labs.append(dict(
@@ -118,10 +118,11 @@ for i, lab in enumerate(availableLabs):
 # agg df by lab name to get each lab's totals across time
 overall_agg_df = (df.drop('Week Ending', axis=1)).groupby('Lab Name', as_index=False).agg(sum)
 # calculate new totals without missing/misformatted and drop those cols
-overall_agg_df['Total_Count'] = overall_agg_df['Total_Count'] - (overall_agg_df['Misformatted'] + overall_agg_df['Missing'])
+overall_agg_df['Total_Count'] = overall_agg_df['Total_Count'] - (
+        overall_agg_df['Misformatted'] + overall_agg_df['Missing'])
 
 # drop missing/misformatted? useful to see JUST valid race info
-#overall_agg_df.drop(['Missing', 'Misformatted'], axis=1, inplace=True)
+# overall_agg_df.drop(['Missing', 'Misformatted'], axis=1, inplace=True)
 
 
 # Create figure
@@ -144,7 +145,7 @@ for i, lab in enumerate(availableLabs):
         y_data = use_df.loc[use_df['variable'] == var]['value']
         # start first trace with a base of 0
         if j == 0:
-            base_vals = [0]*len(y_data)
+            base_vals = [0] * len(y_data)
         trace1 = go.Bar(x=x_data,
                         y=y_data,
                         name=var,
@@ -157,13 +158,13 @@ for i, lab in enumerate(availableLabs):
         # update base values to stack next bar trace on top of current one
         base_vals = [a + b for a, b in zip(base_vals, y_data)]
 
-    ## Trace: percent distribution by week
+        ## Trace: percent distribution by week
         use_percent = update_data(melt_df_percentages, lab)
         x_data_2 = use_percent['Week Ending']
         y_data_2 = use_percent.loc[use_percent['variable'] == var]['value']
         # start off with the bar bases at 0
         if j == 0:
-            base_vals_2 = [0]*len(y_data_2)
+            base_vals_2 = [0] * len(y_data_2)
         trace2 = go.Bar(x=x_data_2,
                         y=y_data_2,
                         name=var,
@@ -212,16 +213,15 @@ for i, lab in enumerate(availableLabs):
                         )
         fig.add_trace(trace3, row=3, col=1)
 
-
 fig.update_xaxes(title='Date')
 fig.update_layout(
     title_text='ELR Race Data by Lab',
     # hovermode = 'x',
-    height=1550,
+    height=1200,
     width=1200,
-    title_y=0.99,
+    title_y=1.00,
     margin=dict(t=140),
-    #barmode='stack'
+    # barmode='stack'
 )
 
 fig.update_layout(
@@ -233,13 +233,13 @@ fig.update_layout(
             showactive=True,
             x=0.0,
             xanchor='left',
-            y=1.05,
+            y=1.08,
             yanchor='top'
         )
     ]
 )
 
-#fig.update_layout(legend_orientation="h",
+# fig.update_layout(legend_orientation="h",
 #             xaxis1_rangeslider_visible=True, xaxis1_rangeslider_thickness=0.1 )
 fig.show()
 fig.write_html('./viz/plotly_race_barchart.html')

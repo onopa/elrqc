@@ -96,26 +96,34 @@ for lab_name, df in df_dict.items():
     date_counts['Lab Name'] = lab_name
 
     varnames = [col for col in df.columns if col not in vars_to_drop]
+
     agg_dict = dict((varname, check_function_dict[varname]) for varname in varnames)
+    # aggregate using agg dict to check formatting
+    df_agg_format = df.groupby('Submission Date').agg(agg_dict)
+    df_agg_format = pd.concat([date_counts, df_agg_format], axis=1)
 
-    df2 = df.groupby('Submission Date').agg(agg_dict)
+    df_agg_format.to_csv('./data/processed/csv_misformatting/' + lab_name + '_misformat.csv')
 
-    df2 = pd.concat([date_counts, df2], axis=1)
+    # check missingness
+    df_group = df.groupby(['Lab Name', 'Submission Date'])
 
-    df2.to_csv('./data/processed/csv_misformatting/' + lab_name + '_misformat.csv')
+    miss_count = df_group.size()
+    df_miss = df_group.agg(lambda x: x.isnull().sum())
+    df_miss['Total Submission Count'] = miss_count
+    df_miss.to_csv('./data/processed/csv_missingness/' + lab_name + '_miss.csv')
 
-# check missingness
-all_df = pd.concat([k for k in df_dict.values()])
-all_df['Submission Date'] = pd.to_datetime(all_df['File Creation Date'])
-
-vars_to_drop = [k for k in vars_to_drop if ((k in all_df.columns) and (k not in ['Lab Name', 'Submission Date']))]
-all_df.drop(vars_to_drop, axis=1, inplace=True)
-
-all_grp = all_df.groupby(['Lab Name','Submission Date'])
-all_miss = all_grp.agg(lambda x: x.isnull().sum())
-miss_count = all_grp.size()
-all_miss['Total Count'] = miss_count
-all_miss.to_csv('./data/processed/csv_missingness/all_miss.csv')
+# # check missingness
+# all_df = pd.concat([k for k in df_dict.values()])
+# all_df['Submission Date'] = pd.to_datetime(all_df['File Creation Date'])
+#
+# vars_to_drop = [k for k in vars_to_drop if ((k in all_df.columns) and (k not in ['Lab Name', 'Submission Date']))]
+# all_df.drop(vars_to_drop, axis=1, inplace=True)
+#
+# all_grp = all_df.groupby(['Lab Name','Submission Date'])
+# all_miss = all_grp.agg(lambda x: x.isnull().sum())
+# miss_count = all_grp.size()
+# all_miss['Total Submission Count'] = miss_count
+# all_miss.to_csv('./data/processed/csv_missingness/all_miss.csv')
 
 
 
