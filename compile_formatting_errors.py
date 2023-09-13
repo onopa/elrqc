@@ -26,7 +26,7 @@ check_function_dict = {'patientLastName': lambda x: check_charlist(x, 75),  # Pa
                        'specimenType': lambda x: check_charlist(x, 75), # Specimen Source. what about cdc loinc code mapping file?
                        'labResultDate': lambda x: check_yyyymmdd(x),  # Test Result Date. check date viability?
                        'resultedTest': lambda x: check_length(x, 150),  # Test Name todo: ETN mapper wrong
-                       'resultedTest_LOINC': lambda x: check_numeric(x, 75),  # Test LOINC Code TODO: DPS mapper wrong?
+                       'resultedTest_LOINC': lambda x: check_loinc(x),  # Test LOINC Code TODO: DPS mapper wrong?
                        'observation': lambda x: check_observation(x),
                        'performingFacility': lambda x: check_charlist(x, 75),  # Testing Lab Name.
                        'performingFacilityCLIA': lambda x: check_alnum_exact(x, 10), # Testing Lab CLIA TODO: WHC missing column
@@ -133,7 +133,7 @@ check_function_dict = {'patientLastName': lambda x: check_charlist(x, 75),  # Pa
                        'specimenType': lambda x: check_charlist(x, 75), # Specimen Source. what about cdc loinc code mapping file?
                        'labResultDate': lambda x: check_timestamp(x),  # Test Result Date. check date viability?
                        'resultedTest': lambda x: check_length(x, 150),  # Test Name todo: ETN mapper wrong
-                       'resultedTest_LOINC': lambda x: check_numeric(x, 75),  # Test LOINC Code TODO: DPS mapper wrong?
+                       'resultedTest_LOINC': lambda x: check_loinc(x),  # Test LOINC Code TODO: DPS mapper wrong?
                        'observation': lambda x: check_observation(x), # TODO: Result Description or Value. consult with Jonathan
                        'performingFacility': lambda x: check_charlist(x, 75),  # Testing Lab Name.
                        'performingFacilityCLIA': lambda x: check_alnum_exact(x, 10), # Testing Lab CLIA TODO: WHC missing column

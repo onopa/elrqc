@@ -170,6 +170,12 @@ def check_state(input_value):
     else:
         return 1  # input_value is not a valid state abbreviation
 
+def check_loinc(input_value):
+    pattern = r"\d\d\d\d\d-\d"
+    if re.match(pattern, input_value):
+        return 0
+    else:
+        return 1
 
 def check_email(input_value):
     pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'

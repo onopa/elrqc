@@ -25,7 +25,7 @@ check_function_dict = {'patientLastName': lambda x: check_col(x, check_charlist,
                        'specimenType': lambda x: check_col(x, check_charlist, 75),  # uses LUT
                        'labResultDate': lambda x: check_col(x, check_timestamp),  # Test Result Date. check date viability?
                        'resultedTest': lambda x: check_col(x, check_length, 150),  # Test Name todo: ETN mapper wrong
-                       'resultedTest_LOINC': lambda x: check_col(x, check_numeric, 75),  # Test LOINC Code TODO: DPS mapper wrong?
+                       'resultedTest_LOINC': lambda x: check_col(x, check_loinc),  # Test LOINC Code
                        'observation': lambda x: check_col(x, check_observation),  # uses LUT
                        'performingFacility': lambda x: check_col(x, check_charlist, 75),  # Testing Lab Name.
                        'performingFacilityCLIA': lambda x: check_col(x, check_alnum_exact, 10),  # Testing Lab CLIA TODO: WHC missing column

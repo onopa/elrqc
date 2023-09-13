@@ -110,7 +110,7 @@ for lab_name in lab_list:
     lab_qcmatrix_misf.columns = vars_to_check
     qcmatrix_misf_list.append(lab_qcmatrix_misf)
 
-    qcdf.to_csv('./data/processed/qc_tables/' + lab_name + '.csv', index=False)
+    qcdf.to_csv('./viz/qc_tables/' + lab_name + '.csv', index=False)
     # qcdf.style.set_table_styles([
     #   {"selector": "td, th", "props": [("border", "1px solid grey !important")]},
     # ])
@@ -141,7 +141,7 @@ for lab_name in lab_list:
     #                                            'border-width': '1px'}).render()
 
 
-    styled_qcdf.to_html('./data/processed/qc_tables/' + lab_name + '.html', index=False)
+    styled_qcdf.to_html('./viz/qc_tables/' + lab_name + '.html', index=False)
     #qcdf.to_html('./data/processed/qc_tables/' + lab_name + '.html', index=False)
 
 
@@ -191,5 +191,5 @@ matrix_miss_html = qcmatrix_miss_styled.to_html(index=False)
 matrix_misf_html = qcmatrix_misf_styled.to_html(index=False)
 
 output_html = matrix_miss_html + '<br>' + matrix_misf_html
-with open('./data/processed/qc_tables/qc_matrix_both.html', 'w') as output_file:
+with open('./viz/qc_tables/qc_matrix_both.html', 'w') as output_file:
     output_file.write(output_html)
