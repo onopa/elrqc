@@ -54,16 +54,16 @@ def compile_csv_race_data():
         # B = grouped_race.agg(Black=lambda x: count_race(x, 'B'))
         #
         # output = pd.concat([AI, B], axis= 1)
-        output.to_csv('./data/processed/csv_race_counts/' + lab_name + '.csv')
+        output.to_csv('./data/processed/csv_race_counts/' + lab_name + '.csv', index=True)
 
         misformatted_counts = count_misformat_race(df['patientRace'])
         misformatted_counts.columns = ['patientRace', 'count']
 
-        misformatted_counts.to_csv('./data/processed/csv_misformat_race_counts/' + lab_name + '.csv', index=False)
+        misformatted_counts.to_csv('./data/processed/csv_misformat_race_counts/' + lab_name + '.csv', index=True)
 
 
-def prep_hhie():
-    print('loading HHIE excel file...')
+def prep_hl7():
+    print('loading HL7 data...')
     # xl = pd.ExcelFile(path_or_buffer='../hhie_aims/labaggregatencov_hhie, aims_labmnemonic0102-0103.xls')
     # sheets = xl.sheet_names
     # print(sheets)
@@ -96,46 +96,53 @@ def prep_hhie():
     # all_cols = df.columns
     # cols_to_drop = [col for col in all_cols if col not in list(renaming_dict.values())]
     # df2 = df.drop(cols_to_drop, axis=1)
-    df_hhie = import_hhie_df()
-    df_hhie = df_hhie[['Submission Date', 'patientRace', 'Lab Name']]
 
-    all_labs = pd.unique(df_hhie['Lab Name'])
+    # DENISE DATA
+    # df_hhie = import_hhie_df()
+    # df_hhie = df_hhie[['Submission Date', 'patientRace', 'Lab Name']]
+
+    df_hl7 = import_hl7_df()
+    #df_hhie = pd.concat([df_hhie, df_hhie_hl7])
+
+    all_labs = pd.unique(df_hl7['Lab Name'])
     lab_data_list = []
     for lab in all_labs:
-        labdf = df_hhie.loc[df_hhie['Lab Name'] == lab]
+        labdf = df_hl7.loc[df_hl7['Lab Name'] == lab]
         lab_data_list.append([lab, labdf])
 
     return lab_data_list
 
 
-def process_hhie(labitem):
+def process_hl7(labitem):
     lab_name = labitem[0]
     print(lab_name)
     lab_df = labitem[1]
     lab_df.drop(['Lab Name'], axis=1, inplace=True)
     group_df = lab_df.groupby('Submission Date')
-
+    grouped_race = group_df['patientRaceCode']
     output = pd.DataFrame()
     for key, val in agg_dict.items():
-        agg_col = group_df.agg(val)
+        agg_col = grouped_race.agg(val)
         output = pd.concat([output, agg_col], axis=1)
 
     output.columns = [var for var in agg_dict.keys()]
     output['Lab Name'] = lab_name
-    output.to_csv('./data/processed/hhie_race_counts/' + lab_name + '.csv')
+    output.reset_index(inplace=True)
+    output.rename(columns={'index': 'Submission Date'}, inplace=True)
+    output.to_csv('./data/processed/hl7_race_counts/' + lab_name + '.csv', index=False)
 
-    misformatted_counts = count_misformat_race(lab_df['patientRace'])
+    misformatted_counts = count_misformat_race(lab_df['patientRaceCode'])
     misformatted_counts.columns = ['patientRace', 'count']
-    misformatted_counts.to_csv('./data/processed/hhie_misformat_race_counts/' + lab_name + '.csv', index=False)
+    misformatted_counts.to_csv('./data/processed/hl7_misformat_race_counts/' + lab_name + '.csv', index=False)
 
 
-def compile_hhie_race_parallel():
-    labdfs = prep_hhie()
+def compile_hl7_race_parallel():
+    labdfs = prep_hl7()
     # print('starting multiprocess')
     # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-    #    data = pool.map(process_hhie, labdfs)
+    #    data = pool.map(process_hl7, labdfs)
     for labitem in labdfs:
-        process_hhie(labitem)
+        process_hl7(labitem)
 
 
 def compile_ecr_race_data():
@@ -171,15 +178,15 @@ def compile_ecr_race_data():
         ecr_output.columns = [var for var in agg_dict.keys()]
         ecr_output['Lab Name'] = lab_name
 
-        ecr_output.to_csv('./data/processed/ecr_race_counts/' + lab_name + '.csv')
+        ecr_output.to_csv('./data/processed/ecr_race_counts/' + lab_name + '.csv', index=True)
 
         misformatted_counts = count_misformat_race(lab_df['patientRace'])
         misformatted_counts.columns = ['patientRace', 'count']
 
-        misformatted_counts.to_csv('./data/processed/ecr_misformat_race_counts/' + lab_name + '.csv', index=False)
+        misformatted_counts.to_csv('./data/processed/ecr_misformat_race_counts/' + lab_name + '.csv', index=True)
 
 
 if __name__ == '__main__':
     compile_csv_race_data()
-    compile_hhie_race_parallel()
+    compile_hl7_race_parallel()
     compile_ecr_race_data()

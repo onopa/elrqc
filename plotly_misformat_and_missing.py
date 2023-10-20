@@ -36,7 +36,7 @@ def updateTimePlotY(labdf, var):
 
 
 def updateCells(celldf, var):
-    use = celldf.loc[(celldf['variable'] == var)]
+    use = celldf.loc[(celldf['Variable'] == var)]
     return use.drop('Lab Name', axis=1)
 
 # I am going to create the dropdown list here and then add it to the figure below
@@ -60,7 +60,8 @@ dropdown_labs.append(dict(
         args=[{'x': [],
                'y': [],
                'cells': [],
-               'header': dict(values=['Submission Date', 'Variable', 'Misformatted Value'])
+               'header': dict(values=['Variable', 'Misformatted Value', 'Count'])
+               #'header': dict(values=['Submission Date', 'Variable', 'Misformatted Value'])
                }],
         label='Select Lab',
         method='update'
@@ -115,9 +116,12 @@ for lab_choice in availableLabs:
         celldata = []
         for col in df_for_cells.columns:
             celldata.append(df_for_cells[col].tolist())
+
+        # add 3 blank cell data to make sure table data lines up after 3 barchart traces (valid, misformat, missing)
         cells.append(dict())
         cells.append(dict())
         cells.append(dict())
+        # add real cell data
         cells.append(dict(values=celldata))
 
     dropdown_labs.append(dict(
@@ -125,7 +129,8 @@ for lab_choice in availableLabs:
                'y': yargs,
                'cells': cells,
                'base': base,
-               'header': dict(values=['Submission Date', 'Variable', 'Misformatted Value'])
+               'header': dict(values=['Variable', 'Misformatted Value', 'Count'])
+               # 'header': dict(values=['Submission Date', 'Variable', 'Misformatted Value'])
                }],
         label=lab_choice,
         method='update'
@@ -143,7 +148,6 @@ dropdown_vars.append(dict(
 
 
 for i, c in enumerate(columns):
-    print(i)
     vis = [False]*(4*len(columns))
 
     bounds=[4*i, 4*i+1, 4*i+2, 4*i+3]
@@ -166,14 +170,14 @@ fig = make_subplots(rows=2, cols=1,
                     specs=[[{'type': 'scatter'}],
                            [{'type': 'table'}]])
 
+print('generating traces...')
 # Add traces for each column
 for i, c in enumerate(columns):
     vis = False
-
     trace_normal = go.Bar(x=usedf['Submission Date'], y=[],
                    offsetgroup=0,
                    base=0,
-                   marker_color='blue',
+                   marker_color='cornflowerblue',
                    showlegend=True,
                    visible=vis,
                    name='valid submissions'
@@ -201,8 +205,10 @@ for i, c in enumerate(columns):
     fig.add_trace(trace_missing, row=1, col=1)
 
     # Create and add second trace for data table
-    trace2 = go.Table(header=dict(values=['Submission Date', 'Variable', 'Misformatted Value']),
+    #trace2 = go.Table(header=dict(values=['Submission Date', 'Variable', 'Misformatted Value']),
+    trace2 = go.Table(header=dict(values=['Variable', 'Misformatted Value', 'Count']),
                       cells=dict(),
+                      columnwidth=[350, 650, 100],
                       visible=False
                       )
 
@@ -214,7 +220,7 @@ fig.update_layout(
     title_text='Plotly Missing+Misformatting Test',
     # hovermode = 'x',
     height=1200,
-    width=1000,
+    width=1100,
     title_y=0.99,
     margin=dict(t=140),
 
@@ -231,7 +237,7 @@ fig.update_layout(
             showactive=True,
             x=0.0,
             xanchor='left',
-            y=1.11,
+            y=1.10,
             yanchor='top',
             active=0
         ),
@@ -242,7 +248,7 @@ fig.update_layout(
             showactive=True,
             x=0.0,
             xanchor='left',
-            y=1.06,
+            y=1.05,
             yanchor='top',
             active=0
         )
@@ -254,3 +260,4 @@ fig.show()
 
 
 fig.write_html("./viz/plotly_misformatting_and_missing.html")
+

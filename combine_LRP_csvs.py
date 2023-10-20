@@ -14,7 +14,7 @@ from datetime import datetime
 #    return results
 
 
-if __name__ == '__main__':
+def combine_lrp_csvs():
     lab_names_sheet = pd.read_excel('./lookups/File_Mapper_LAB_CSV_v2.xlsx', sheet_name='File_Mapper_LAB_CSV - Copy')
     lab_mapper_sheet = pd.read_excel('./lookups/File_Mapper_LAB_CSV_v2.xlsx', sheet_name='ID To Mapper')
     mapping_folder = './lookups/ELR Mappings by Lab/'
@@ -72,6 +72,7 @@ if __name__ == '__main__':
                 except UnicodeDecodeError:
                     submission_df = pd.read_csv(lab_file, dtype='str', encoding="ISO-8859-1", on_bad_lines='skip', index_col=False)
 
+                submission_df.dropna(axis=0, how='all', inplace=True)
                 # attempt to rename variables with mapper dictionaries
                 submission_df.columns = map(str.upper, submission_df.columns)
                 submission_df.columns = submission_df.columns.str.replace(' ', '')
@@ -124,3 +125,7 @@ if __name__ == '__main__':
             extra_df = pd.concat(extra_dfs)
             extra_df.to_csv('./data/processed/csv_labs_extra_vars/extra_vars_' + lab_abbrev + '.csv', index=False)
     all_lab_df.to_csv('./data/processed/csv_all_labs_concat.csv', index=False)
+
+
+if __name__ == '__main__':
+    combine_lrp_csvs()

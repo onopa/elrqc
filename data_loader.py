@@ -2,7 +2,7 @@ import pandas as pd
 import datetime
 import glob
 import sys
-
+from hl7_tools import parse_hl7_aims, parse_hl7_hhie
 
 def import_csv_df():
     df_list = []
@@ -29,6 +29,7 @@ def import_csv_dict():
         df_dict[lab_name] = df
 
     return df_dict
+
 
 def import_hhie_df():
     filepath = './data/raw/hhie_aims/current_data_pull.xls'
@@ -98,7 +99,7 @@ def import_hhie_df():
         df.drop_duplicates(subset='TestingLabSpecID_2_2_1', inplace=True)
 
     df.rename(columns=renaming_dict, inplace=True)
-
+    df.loc[df['patientRace'] == 'Asian or Other Pacific Islander', 'patientRace'] = 'Asian'
     all_cols = df.columns
     cols_to_drop = [col for col in all_cols if col not in list(renaming_dict.values())]
     print(cols_to_drop)
@@ -108,6 +109,16 @@ def import_hhie_df():
 
     return df2
 
+
+def import_hl7_df():
+    hl7_files = glob.glob('./data/processed/hl7/*tabular_output.csv')
+    hl7_df_list = []
+    for hl7_file in hl7_files:
+        hl7_df = pd.read_csv(hl7_file, dtype='str')
+        hl7_df['Submission Date'] = pd.to_datetime(hl7_df['Submission Date'])
+        hl7_df_list.append(hl7_df)
+    hl7_concat_df = pd.concat(hl7_df_list)
+    return hl7_concat_df
 
 def import_ecr(output_type):
     if output_type not in ('df', 'dict'):
@@ -121,7 +132,7 @@ def import_ecr(output_type):
 def import_missingness(output_type):
     if output_type not in ('df', 'dict'):
         raise ValueError('neet to select df or dict return type')
-    missingness_files = glob.glob('./data/processed/csv_missingness/*.csv') + glob.glob('./data/processed/hhie_missingness/*.csv')
+    missingness_files = glob.glob('./data/processed/hl7_missingness/*.csv') + glob.glob('./data/processed/csv_missingness/*.csv')
     file_df_list = []
     lab_name_list = []
     for missfile in missingness_files:
@@ -147,7 +158,7 @@ def import_misformatting(output_type):
         raise ValueError('need to select df or dict return type')
     df_list = []
     name_list = []
-    misformat_files = glob.glob('./data/processed/csv_misformatting/*.csv') + glob.glob('./data/processed/hhie_misformatting/*.csv')
+    misformat_files = glob.glob('./data/processed/hl7_misformatting/*.csv') + glob.glob('./data/processed/csv_misformatting/*.csv')
     for file in misformat_files:
         df = pd.read_csv(file)
         df['Submission Date'] = pd.to_datetime(df['Submission Date'])
@@ -170,9 +181,9 @@ def import_misformat_values(output_type):
         mfdf_csv = pd.read_csv(misformat_file, dtype='str')
         misformat_list.append(mfdf_csv)
 
-    for misformat_file in glob.glob('./data/processed/hhie_misformat_values/*.csv'):
-        mfdf_hhie = pd.read_csv(misformat_file)
-        misformat_list.append(mfdf_hhie)
+    for misformat_file in glob.glob('./data/processed/hl7_misformat_values/*.csv'):
+        mfdf_hl7 = pd.read_csv(misformat_file)
+        misformat_list.append(mfdf_hl7)
 
     if output_type == 'df':
         output_df = pd.concat(misformat_list)
@@ -186,3 +197,5 @@ def import_misformat_values(output_type):
         return output_dict
     else:
         sys.exit('problem with misformat values import')
+
+

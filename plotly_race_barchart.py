@@ -17,7 +17,7 @@ colors = [plotly.colors.qualitative.Plotly[0],
           plotly.colors.qualitative.Plotly[5],
           plotly.colors.qualitative.Plotly[6],
           'black',
-          'lightgray'
+          'gray'
           ]
 
 varnames = ['American Indian or Alaska Native',
@@ -36,8 +36,8 @@ color_dict = dict(zip(varnames, colors))
 df = pd.DataFrame()
 df_percentages = pd.DataFrame()
 
-files_to_load = glob.glob('./data/processed/csv_race_counts/*.csv') + \
-                glob.glob('./data/processed/hhie_race_counts/*.csv') + \
+files_to_load = glob.glob('./data/processed/hl7_race_counts/*.csv') + \
+                glob.glob('./data/processed/csv_race_counts/*.csv') + \
                 glob.glob('./data/processed/ecr_race_counts/*.csv')
 
 for lab_file in files_to_load:

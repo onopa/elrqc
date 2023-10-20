@@ -3,13 +3,12 @@ import pandas as pd
 import datetime as dt
 import numpy as np
 
-week_prior = dt.datetime.today() - dt.timedelta(days=100)
-three_months_prior = dt.datetime.today() - dt.timedelta(weeks=52)
+week_prior = dt.datetime.today() - dt.timedelta(weeks=1)
+three_months_prior = dt.datetime.today() - dt.timedelta(weeks=12)
 
 missing_dict = import_missingness('dict')
-
 misformat_dict = import_misformatting('dict')
-lab_list = [k for k in missing_dict.keys()]
+lab_list = list(missing_dict.keys())
 
 qcmatrix_lab_list = []
 qcmatrix_miss_list = []
@@ -156,13 +155,22 @@ for col in qcmatrix_miss.columns:
 qcmatrix_miss.insert(loc=0, column='Lab_Name', value=pd.Series(qcmatrix_lab_list))
 qcmatrix_miss.insert(loc=1, column='Submission Count', value=pd.Series(submission_count_list))
 
+# qcmatrix_miss_styled = qcmatrix_miss.style.format(precision=2).\
+#q
+
+import pandas.io.formats.excel
+pandas.io.formats.excel.header_style = None
+
 qcmatrix_miss_styled = qcmatrix_miss.style.background_gradient(cmap='Blues', vmin=0, vmax=1, subset=vars_to_check).\
     format(precision=2).\
-    set_properties(**{'max-width': '10px', 'font-size': '10pt'}).\
+    set_properties(**{'max-width': '10px', 'font-size': '10pt',
+                      'text-align': 'left'}).\
     set_caption('Missing').\
-    set_table_styles([{'selector': 'th', 'props': [('font-size', '10pt')]},
+    set_table_styles([{'selector': 'th', 'props': [('font-size', '10pt',),
+                                                   ('text-align', 'left')]},
                       {'selector': 'caption', 'props': [('text-align', 'left'),
-                                                        ('font-size', '14pt')]}])
+                                                        ('font-size', '14pt')]}
+                      ])
 
 #qcmatrix_start = pd.DataFrame([zip(qcmatrix_lab_list, submission_count_list)], columns = ['Lab Name', 'Submission Count'])
 #qcmatrix_miss_styled = qcmatrix_start.style.format().concat(qcmatrix_miss_styled)
@@ -191,5 +199,46 @@ matrix_miss_html = qcmatrix_miss_styled.to_html(index=False)
 matrix_misf_html = qcmatrix_misf_styled.to_html(index=False)
 
 output_html = matrix_miss_html + '<br>' + matrix_misf_html
+
 with open('./viz/qc_tables/qc_matrix_both.html', 'w') as output_file:
     output_file.write(output_html)
+
+# format header and write to excel
+writer = pd.ExcelWriter('./viz/qc_tables/output.xlsx', engine='xlsxwriter')
+
+miss_header_format = writer.book.add_format({
+    'bold': True,
+    'font_color': 'white',
+    'bg_color': '#08306b',
+    'border': 1,
+    'align': 'left',
+    'valign': 'vcenter'
+})
+
+misf_header_format = writer.book.add_format({
+    'bold': True,
+    'font_color': 'white',
+    'bg_color': '#67000d',
+    'border': 1,
+    'align': 'left',
+    'valign': 'vcenter'
+})
+
+qcmatrix_miss_styled.to_excel(writer, sheet_name='Missing', index=False, startrow=1, header=False)
+
+worksheet_miss = writer.sheets['Missing']
+for col_num, value in enumerate(qcmatrix_miss_styled.columns.values):
+    worksheet_miss.write(0, col_num, value, miss_header_format)
+
+worksheet_miss.freeze_panes(1,1)
+
+qcmatrix_misf_styled.to_excel(writer, sheet_name='Misformat', index=False, startrow=1, header=False)
+
+worksheet_misf = writer.sheets['Misformat']
+for col_num, value in enumerate(qcmatrix_misf_styled.columns.values):
+    worksheet_misf.write(0, col_num, value, misf_header_format)
+
+worksheet_misf.freeze_panes(1,1)
+
+
+writer.close()
