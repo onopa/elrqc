@@ -31,6 +31,7 @@ varnames = ['American Indian or Alaska Native',
             'Missing'
             ]
 
+
 color_dict = dict(zip(varnames, colors))
 
 df = pd.DataFrame()

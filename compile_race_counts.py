@@ -64,45 +64,7 @@ def compile_csv_race_data():
 
 def prep_hl7():
     print('loading HL7 data...')
-    # xl = pd.ExcelFile(path_or_buffer='../hhie_aims/labaggregatencov_hhie, aims_labmnemonic0102-0103.xls')
-    # sheets = xl.sheet_names
-    # print(sheets)
-    # df_hhie = pd.DataFrame()
-    # for i, sheet in enumerate(sheets):
-    #     print('parsing ' + sheet)
-    #     if i == 0:
-    #         sheetdf = xl.parse(sheet_name=sheets[0], skiprows=[0, 2], dtype='str', header=0)
-    #     else:
-    #         sheetdf = xl.parse(sheet_name=sheets[0], skiprows=[0, 1, 2], dtype='str', header=None)
-    #         sheetdf.columns = df_hhie.columns
-    #     sheetdf.drop_duplicates(subset='TestingLabSpecID_2_2_1', inplace=True)
-    #     df_hhie = pd.concat([df_hhie, sheetdf])
-    #     df_hhie.drop_duplicates(subset='TestingLabSpecID_2_2_1', inplace=True)
-    #
-    # df_hhie = df_hhie[['AuditDateTime','Race_10_2', 'LabMnemonic']]
-    #     # rename cols
-    # renaming_dict = {
-    #     'AuditDateTime': 'Submission Date',
-    #     'Race_10_2': 'patientRace',
-    #     #'TestingLabName_23_1': 'performingFacility',
-    #     'LabMnemonic': 'LabMnemonic'
-    # }
-    #
-    # df_hhie.rename(columns=renaming_dict, inplace=True)
-    #
-    # df_hhie['Submission Date'] = pd.to_datetime(df_hhie['Submission Date'])
-    # df_hhie['Submission Date'] = df_hhie['Submission Date'].apply(lambda x: x.date())
-
-    # all_cols = df.columns
-    # cols_to_drop = [col for col in all_cols if col not in list(renaming_dict.values())]
-    # df2 = df.drop(cols_to_drop, axis=1)
-
-    # DENISE DATA
-    # df_hhie = import_hhie_df()
-    # df_hhie = df_hhie[['Submission Date', 'patientRace', 'Lab Name']]
-
     df_hl7 = import_hl7_df()
-    #df_hhie = pd.concat([df_hhie, df_hhie_hl7])
 
     all_labs = pd.unique(df_hl7['Lab Name'])
     lab_data_list = []
@@ -131,9 +93,9 @@ def process_hl7(labitem):
     output.rename(columns={'index': 'Submission Date'}, inplace=True)
     output.to_csv('./data/processed/hl7_race_counts/' + lab_name + '.csv', index=False)
 
-    misformatted_counts = count_misformat_race(lab_df['patientRaceCode'])
-    misformatted_counts.columns = ['patientRace', 'count']
-    misformatted_counts.to_csv('./data/processed/hl7_misformat_race_counts/' + lab_name + '.csv', index=False)
+    #misformatted_counts = count_misformat_race(lab_df['patientRaceCode'])
+    #misformatted_counts.columns = ['patientRace', 'count']
+    #misformatted_counts.to_csv('./data/processed/hl7_misformat_race_counts/' + lab_name + '.csv', index=False)
 
 
 def compile_hl7_race_parallel():
@@ -186,7 +148,9 @@ def compile_ecr_race_data():
         misformatted_counts.to_csv('./data/processed/ecr_misformat_race_counts/' + lab_name + '.csv', index=True)
 
 
+
+
 if __name__ == '__main__':
     compile_csv_race_data()
     compile_hl7_race_parallel()
-    compile_ecr_race_data()
+    #compile_ecr_race_data()

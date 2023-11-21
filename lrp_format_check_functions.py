@@ -50,6 +50,15 @@ def check_col(col, fn, *args):
     return total_errors
 
 
+# function for second attempt at checking columns without agg
+def check_col2(input_value, fn, *args):
+    if pd.isna(input_value):
+        return 0
+    else:
+        result = fn(input_value, *args)
+        return result
+
+
 def check_length(input_value, length):
     if len(input_value) <= length:
         return 0  # input_value is valid
@@ -278,6 +287,29 @@ def count_race(col, selection_str):
     return total_count
 
 
+def count_race2(input_val, selection_str):
+    if selection_str == 'missing':
+        if pd.isna(input_val):
+            return 1
+        else:
+            return 0
+    elif selection_str == 'misformat':
+        if pd.isna(input_val):
+            return 0
+        if input_val.upper() not in race_codes_1 + race_codes_2:
+            return 1
+    else:
+        if pd.isna(input_val):
+            return 0
+        if input_val.upper() in race_codes_1:
+            if race_lookup_dict_1[input_val.upper()] == selection_str:
+                return 1
+        elif input_val.upper() in race_codes_2:
+            if race_lookup_dict_2[input_val.upper()] == selection_str:
+                return 1
+        else:
+            return 0
+
 def count_misformat_race(col):
     misformat_list = []
     for val in col:
@@ -292,7 +324,7 @@ def get_race_lookup_dict():
     return race_lookup_dict_1
 
 
-def get_check_dict():
+def get_check_function_dict():
     output = {'patientLastName': lambda x: check_charlist(x, 75),  # Patient Last Name.
               'patientFirstName': lambda x: check_charlist(x, 75),  # Patient First Name.
               'patientDOB': lambda x: check_date_time(x), # Patient Date of Birth. change to check viability of dates?
@@ -350,12 +382,12 @@ def get_check_dict():
     return output
 
 def get_check_function_dict_csv():
-    check_dict = get_check_dict()
+    check_dict = get_check_function_dict()
     check_dict.update({'observation': lambda x: check_observation(x)})
     return check_dict
 
 def get_check_function_dict_hl7():
-    check_dict = get_check_dict()
+    check_dict = get_check_function_dict()
     check_dict.update({'observation': lambda x: check_charlist(x, 75)})
     return check_dict
 
@@ -430,3 +462,72 @@ def get_check_col_dict_hl7():
     check_col_dict.update({'observation': lambda x: check_col(x, check_charlist, 75)})
     return check_col_dict
 
+def get_check_col_dict2():
+    output = {'patientLastName': lambda x: check_col2(x, check_charlist, 75),  # Patient Last Name.
+              'patientFirstName': lambda x: check_col2(x, check_charlist, 75),  # Patient First Name.
+              'patientDOB': lambda x: check_col2(x, check_date_time),  # Patient Date of Birth. change to check viability of dates?
+              'patientGender': lambda x: check_col2(x, check_gender),  # Patient Sex
+              'patientId': lambda x: check_col2(x, check_alnum, 75),  # Patient ID
+              'patientRace': lambda x: check_col2(x, check_race),  # Patient Race. uses LUT.
+              'patientRaceCode': lambda x: check_col2(x, check_race_code),
+              'patientEthnicity': lambda x: check_col2(x, check_ethnicity),  # Patient Ethnicity. uses LUT TODO: KMC missing col (???)
+              'patientAddressLine1': lambda x: check_col2(x, check_charlist, 75),  # Patient Street Address.
+              'patientAddressCity': lambda x: check_col2(x, check_charlist, 75),  # Patient City.
+              'patientAddressState': lambda x: check_col2(x, check_state),  # Patient State
+              'patientAddressZip': lambda x: check_col2(x, check_zip),  # Patient Zip Code#
+              'PATIENTADDRESSCOUNTY': lambda x: check_col2(x, check_charlist, 75),  # Patient County TODO: CLS missing col
+              'patientTelephoneNumber': lambda x: check_col2(x, check_numeric_exact, 10),  # Patient Phone No
+              'Notes': lambda x: check_col2(x, check_email),  # Patient Email. TODO: DPS mapper wrong. also - why Notes??
+              'specimenCollectionDate': lambda x: check_col2(x, check_date_time),  # Specimen Collection Date. change to check viability of dates?
+              'specimenReceivedDate': lambda x: check_col2(x, check_date_time),  # Specimen Received Date. check viability?
+              'placerOrder': lambda x: check_col2(x, check_alnum, 75),  # Accession Number
+              'specimenType': lambda x: check_col2(x, check_charlist, 75),  # uses LUT
+              'labResultDate': lambda x: check_col2(x, check_date_time),  # Test Result Date. check date viability?
+              'resultedTest': lambda x: check_col2(x, check_length, 150),  # Test Name todo: ETN mapper wrong
+              'resultedTest_LOINC': lambda x: check_col2(x, check_loinc),  # Test LOINC Code
+              #'observation': lambda x: check_col2(x, check_observation),  # uses LUT
+              'performingFacility': lambda x: check_col2(x, check_charlist, 75),  # Testing Lab Name.
+              'performingFacilityCLIA': lambda x: check_col2(x, check_alnum_exact, 10),  # Testing Lab CLIA TODO: WHC missing column
+              'performingFacilityAddress': lambda x: check_col2(x, check_charlist, 75),  # Testing Lab Street Address. TODO: CVS mapper wrong
+              'performingFacility_City': lambda x: check_col2(x, check_charlist, 75),  # Testing Lab City.
+              'performingFacility_State': lambda x: check_col2(x, check_state),  # Testing Lab State
+              'performingFacility_Zip': lambda x: check_col2(x, check_zip),  # Testing Lab Zip Code
+              'performingFacility_CallBackNumber': lambda x: check_col2(x, check_numeric_exact, 10),  # Testing Lab Phone No todo: ETN mapper wrong
+              'ProviderName': lambda x: check_col2(x, check_charlist, 75),  ######## Ordering Provider Last Name. char list? TODO: var redundant with following 2.
+              'providerLastName': lambda x: check_col2(x, check_charlist, 75),  ######## Ordering Provider Last Name. char list? TODO: redundant?
+              'providerFirstName': lambda x: check_col2(x, check_charlist, 75),  ####### Ordering Provider First Name. char list? TODO: redundant?
+              'ProviderAddress': lambda x: check_col2(x, check_charlist, 75),  # Ordering Provider Street Address.
+              'Provider_City': lambda x: check_col2(x, check_charlist, 75),  # Ordering Provider City.
+              'Provider_State': lambda x: check_col2(x, check_state),  # Ordering Provider State
+              'Provider_Zip': lambda x: check_col2(x, check_zip),  # Ordering Provider Zip Code
+              'Provider_CallBackNumber': lambda x: check_col2(x, check_numeric_exact, 10),  # Ordering Provider Phone No  TODO: CLS mapping incorrect, check w/ jonathan
+              'orderingFacility': lambda x: check_col2(x, check_charlist, 75),  # Ordering Facility Name.
+              'orderingFacility_Address': lambda x: check_col2(x, check_charlist, 75), # Ordering Facility Street Address.
+              'orderingFacility_City': lambda x: check_col2(x, check_charlist, 75),  # Ordering Facility City
+              'orderingFacility_State': lambda x: check_col2(x, check_state),  # Ordering Facility State
+              'orderingFacility_Zip': lambda x: check_col2(x, check_zip),  # Ordering Facility Zip Code
+              'orderingFacility_CallBackNumber': lambda x: check_col2(x, check_numeric_exact, 10),  # Ordering Facility Phone No TODO: CLS mapper wrong
+              'isThisFirstTest': lambda x: check_col2(x, check_ynuunk),  # Patient First Covid Test TODO: what is meant by 'description' or 'code'? Y/N vs Yes/No? Also - move to optional vars
+              'isAHealthcareWorker': lambda x: check_col2(x, check_ynuunk),  # Patient Employed in Healthcare TODO: as above, optional + desc/code
+              'symptomOnsetDate': lambda x: check_col2(x, check_yyyymmdd),  # Patient Symptom Onset Date TODO: KMC missing, move to optional vars
+              'isSymptomatic': lambda x: check_col2(x, check_ynuunk),  # Patient Symptomatic As Defined By CDC TODO: KMC missing col, so optional. also description/code?
+              'isHospitalized': lambda x: check_col2(x, check_ynuunk),  # Patient Hospitalized TODO: as above, optional + desc/code?
+              'inICU': lambda x: check_col2(x, check_ynuunk),  # Patient In ICU TODO: as above, optional + desc/code
+              'isPregnant': lambda x: check_col2(x, check_ynuunk),  # Patient Pregnant TODO: as above, optional + desc/code
+              'isResidentOfCongregateCareSetting': lambda x: check_col2(x, check_ynuunk),  # Patient Resident in a Congregate Care Setting, todo: as above, optional + desc/code
+              'patientAge': lambda x: check_col2(x, check_numeric, 3),  # Patient Age at Time of Collection (Years) todo: ETN missing column, move to optional. also KMC mapper is missing this
+              #'Lab Name': lambda x: check_col2(x, check_charlist, 5),
+              'ADDITIONAL_NOTES_1': lambda x: check_col2(x, check_charlist, 75)
+              }
+    return output
+
+def get_check_col_dict_csv_2():
+    check_col_dict = get_check_col_dict2()
+    check_col_dict.update({'observation': lambda x: check_col2(x, check_observation)})
+    return check_col_dict
+
+#
+def get_check_col_dict_hl7_2():
+    check_col_dict = get_check_col_dict2()
+    check_col_dict.update({'observation': lambda x: check_col2(x, check_charlist, 75)})
+    return check_col_dict
